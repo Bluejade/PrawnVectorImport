@@ -14,12 +14,12 @@ module PrawnVectorImport
     
     it 'should be able to import curves' do
       import = PrawnVectorImport::Import.new(path_to("text_oval.pdf"))
-      import.output.should =~ /^move_to\(os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\)$.^curve_to\(\[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\], :bounds => \[[0-9.-]+, [0-9.-]+, [0-9.-]+, [0-9.-]+\]\)/m
+      import.output.should =~ /^move_to\(os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\)$.^curve_to\(\[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\], :bounds => \[\[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\], \[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\]\]\)/m
     end
     
     it 'should be able to draw a rectangle' do
       import = PrawnVectorImport::Import.new(path_to("pretty_polygons.pdf"))
-      import.output.should =~ /^rectangle\(\[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\], [0-9.]+, [0-9.]+\)$/
+      import.output.should =~ /^rectangle\(\[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\], os \* [0-9.]+, os \* [0-9.]+\)$/
     end
 
     it 'should be able to fill' do
@@ -39,12 +39,12 @@ module PrawnVectorImport
 
     it 'should be able to set fill color' do
       import = PrawnVectorImport::Import.new(path_to("curves.pdf"))
-      import.output.should =~ /^fill_color\(rgb2hex\(\[[0-9.]+, [0-9.]+, [0-9.]+\]\)\)$/
+      import.output.should =~ /^fill_color\(rgb2hex\(\[[0-9.]+ \* 255, [0-9.]+ \* 255, [0-9.]+ \* 255\]\)\)$/
     end
     
     it 'should be able to set stroke color' do
       import = PrawnVectorImport::Import.new(path_to("curves.pdf"))
-      import.output.should =~ /^stroke_color\(rgb2hex\(\[[0-9.]+, [0-9.]+, [0-9.]+\]\)\)$/
+      import.output.should =~ /^stroke_color\(rgb2hex\(\[[0-9.]+ \* 255, [0-9.]+ \* 255, [0-9.]+ \* 255\]\)\)$/
     end
     
     it 'should be able to set stroke width' do

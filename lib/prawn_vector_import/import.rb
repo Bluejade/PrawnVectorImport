@@ -26,6 +26,34 @@ module PrawnVectorImport
     def output
       @output.join("\n")
     end
+
+    def concatenate_matrix(*params)
+      # only handling translational matrix at this point
+      @output << "ox += #{params[4]} * os"
+      @output << "oy += #{params[5]} * os"
+    end
+
+    def save_graphics_state
+      # this should really save the entire graphics state, but at this
+      # point, I am only handling simple modifications, and
+      # Illustrator seems use concatenate_matrix and graphics state
+      # saving and restoring around various objects
+      @output << "original_ox = ox"
+      @output << "original_oy = oy"
+    end
+
+    def restore_graphics_state
+      @output << "ox = original_ox"
+      @output << "oy = original_oy"
+    end
+
+    def discard_deferred_block
+      # don't draw things like clipping paths
+      @deferred_block = []
+    end
+
+    alias_method :set_clipping_path_with_nonzero, :discard_deferred_block
+    alias_method :set_clipping_path_with_even_odd, :discard_deferred_block
     
     def stroke
       @output << "stroke do"
@@ -76,11 +104,11 @@ module PrawnVectorImport
       y = params[1]
       width = params[2]
       height = params[3]
-      @deferred_block << "rectangle([os * #{x} + ox, os * #{y + height} + oy], #{width}, #{height})"
+      @deferred_block << "rectangle([os * #{x} + ox, os * #{y + height} + oy], os * #{width}, os * #{height})"
     end
 
     def append_curved_segment(*params)
-      @deferred_block << "curve_to([os * #{params[4]} + ox, os * #{params[5]} + oy], :bounds => [#{params[0]}, #{params[1]}, #{params[2]}, #{params[3]}])"
+      @deferred_block << "curve_to([os * #{params[4]} + ox, os * #{params[5]} + oy], :bounds => [[os * #{params[0]} + ox, os * #{params[1]} + oy], [os * #{params[2]} + ox, os * #{params[3]} + oy]])"
     end
 
 
@@ -88,14 +116,14 @@ module PrawnVectorImport
       r = params[0]
       g = params[1]
       b = params[2]
-      @output << "stroke_color(rgb2hex([#{r}, #{g}, #{b}]))"
+      @output << "stroke_color(rgb2hex([#{r} * 255, #{g} * 255, #{b} * 255]))"
     end
 
     def set_rgb_color_for_nonstroking(*params)
       r = params[0]
       g = params[1]
       b = params[2]
-      @output << "fill_color(rgb2hex([#{r}, #{g}, #{b}]))"
+      @output << "fill_color(rgb2hex([#{r} * 255, #{g} * 255, #{b} * 255]))"
     end
     
     def set_cmyk_color_for_stroking(params)
@@ -125,8 +153,8 @@ module PrawnVectorImport
         return
       end
       length = array[0]
-      space = array[1]
-      phase = params[1]
+      space = array[1] || "nil"
+      phase = params[1] || "nil"
       @output << "dash(#{length}, :space => #{space}, :phase => #{phase})"
     end
     
