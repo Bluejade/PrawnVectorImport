@@ -6,9 +6,7 @@ module PrawnVectorImport
     attr_reader :line_count
     
     def initialize(file_path)
-      #       puts Dir.getwd
-      #       puts file_path
-      @output = []
+      @output = [""]
       # ox and oy define the origin offset, so one can adjust the
       # position of the imported graphics without returning to the
       # program that generated the graphics
