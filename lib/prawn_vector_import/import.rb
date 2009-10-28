@@ -10,12 +10,17 @@ module PrawnVectorImport
       # ox and oy define the origin offset, so one can adjust the
       # position of the imported graphics without returning to the
       # program that generated the graphics
+      @output << "# Modify ox and oy to position this collection of graphics"
       @output << "ox = 0"
       @output << "oy = 0"
       # os is the origin scale, so the graphics can be scaled without
       # program that generated the graphics
+      @output << "# Modify os to scale this collection of graphics"
       @output << "os = 1"
       @output << ""
+      @output << "# Do not modify gsXs and gsYs. They handles translational graphics state saving/restoring"
+      @output << "gsXs = []"
+      @output << "gsYs = []"
       @line_count = 0
       @deferred_block = []
       PDF::Reader.file(file_path, self)
@@ -36,13 +41,13 @@ module PrawnVectorImport
       # point, I am only handling simple modifications, and
       # Illustrator seems use concatenate_matrix and graphics state
       # saving and restoring around various objects
-      @output << "original_ox = ox"
-      @output << "original_oy = oy"
+      @output << "gsXs << ox"
+      @output << "gsYs << oy"
     end
 
     def restore_graphics_state
-      @output << "ox = original_ox"
-      @output << "oy = original_oy"
+      @output << "ox = gsXs.pop"
+      @output << "oy = gsYs.pop"
     end
 
     def discard_deferred_block
