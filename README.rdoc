@@ -14,30 +14,36 @@ PrawnVectorImport requires the PDF::Reader gem:
 
 First, generate your Adobe Illustrator / PDF file. If using Illustrator, when you save, save as PDF compatible, uncompressed. NOTE: if the graphic includes text that you want imported, convert that text to outlines (Type > Create Outlines) before importing it.
 
-Use PrawnVectorImport from the command line
+Use PrawnVectorImport from the command line to generate a ruby file:
 
-  $ cd into your PrawnVectorImport directory
-  $ ruby bin/import_vectors.rb path_to_AI_or_PDF_file > my_vector_data.rb
+  $ cd PrawnVectorImport/
+  $ ruby bin/import_vectors.rb path_to_ai_or_pdf_file > path_to_file_you_want_to_create
 
-The result is a ruby file, the contents of which can be copied and pasted into your project (preferrably into an object devoted to rendering that content).
+The resulting ruby file is an extension to the Prawn::Graphics module. It contains a method named my_vector_graphics that takes three optional parameters. Rename that method (and the file) to a name that corresponds to your graphics content, then include the file in your project and call the method on a Prawn document object.
 
-To see this in action quickly, copy the contents of my_vector_data.rb into the 'generate' block of examples/prawn_vector_import.rb and copy that file into the 'examples' directory of your Prawn installation. Then
+If you have Prawn installed in the same directory as PrawnVectorImport, then here is an easy way to test the results:
 
-  $ cd into your Prawn directory
+  $ cd PrawnVectorImport/
+  $ ruby bin/import_vectors.rb ./examples/vector_import_test.ai > ./examples/my_vector_graphics.rb
+  $ cp examples/my_vector_graphics.rb ../prawn/examples/
+  $ cp examples/prawn_vector_import.rb ../prawn/examples/
+  $ cd ../prawn
   $ ruby examples/prawn_vector_import.rb
 
-The result should be a dynamically generated file named 'prawn_vector_import.pdf' that, when opened, contains the vector data from your Illustrator file.
+See the ./examples/prawn_vector_import.rb file for an example of how the generated method is called.
 
-The generated Ruby contains three variables at the top:
+= Hints
 
-  ox = 0
-  oy = 0
-  os = 1
+- Make certain that all of the artwork you want to appear is contained within the artboard.
 
-ox is the x-axis offset from the left bound. oy is the y-axis offset from the bottom bound. os is the scale of the graphic. Use these to scale your graphics and move them around the page as a unit.
+- Positioning is based on the lower left corner of the Illustrator document and from the lower left corner of the Prawn bounds.
+
+- If you don't see anything, and your document is in CMYK, change the Illustrator document and then all artwork to RGB.
+
+- Delete hidden layers. Artwork that is present, but not visible, may be drawn, creating a larger ruby file and final PDF unnecessarily.
+
+- Again, convert type to outlines prior to importing if you want the text to appear.
 
 = Limitations
-
-To be discovered. =)
 
 It's pretty basic right now. I know it doesn't yet handle transparency. However, at least when an Illustrator document is saved as PDF compatible (I'm using Illustrator CS3), objects may be rotated, and Illustrator even cuts off objects that extend beyond the artboard (see examples/prawn_vector_import.pdf and the original examples/vector_import_test.ai).

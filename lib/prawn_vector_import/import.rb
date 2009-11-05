@@ -6,28 +6,31 @@ module PrawnVectorImport
     attr_reader :line_count
     
     def initialize(file_path)
-      @output = [""]
-      # ox and oy define the origin offset, so one can adjust the
-      # position of the imported graphics without returning to the
-      # program that generated the graphics
-      @output << "# Modify ox and oy to position this collection of graphics"
-      @output << "ox = 0"
-      @output << "oy = 0"
-      # os is the origin scale, so the graphics can be scaled without
-      # program that generated the graphics
-      @output << "# Modify os to scale this collection of graphics"
-      @output << "os = 1"
-      @output << ""
-      @output << "# Do not modify gsXs and gsYs. They handles translational graphics state saving/restoring"
-      @output << "gsXs = []"
-      @output << "gsYs = []"
+      @output = []
       @line_count = 0
       @deferred_block = []
       PDF::Reader.file(file_path, self)
     end
     
     def output
-      @output.join("\n")
+      @header = []
+      @header << "module Prawn"
+      @header << "  module Graphics"
+      @header << "    # Change this method name to something that fits your graphics"
+      @header << "    # ox and oy are offset_x and offset_y, respectively. they are used to position your graphics"
+      @header << "    # os is the amount to scale the graphics"
+      @header << "    def my_vector_graphics(ox=0, oy=0, os=1)"
+      @header << "      # Do not modify gsXs and gsYs. They handle translational graphics state saving/restoring"
+      @header << "      gsXs = []"
+      @header << "      gsYs = []"
+
+
+      @footer = []
+      @footer << "    end"
+      @footer << "  end"
+      @footer << "end"
+
+      @header.join("\n") + "\n      " + @output.join("\n      ") + "\n" + @footer.join("\n")
     end
 
     def concatenate_matrix(*params)
@@ -60,21 +63,21 @@ module PrawnVectorImport
     
     def stroke
       @output << "stroke do"
-      @output << @deferred_block.join("\n")
+      @output << "  " + @deferred_block.join("\n        ")
       @output << "end"
       @deferred_block = []
     end
     
     def fill_stroke
       @output << "fill_and_stroke do"
-      @output << @deferred_block.join("\n")
+      @output << "  " + @deferred_block.join("\n        ")
       @output << "end"
       @deferred_block = []
     end
     
     def fill
       @output << "fill do"
-      @output << @deferred_block.join("\n")
+      @output << "  " + @deferred_block.join("\n        ")
       @output << "end"
       @deferred_block = []
     end
