@@ -129,7 +129,7 @@ module PrawnVectorImport
       @output << "fill_color(rgb2hex([#{r} * 255, #{g} * 255, #{b} * 255]))"
     end
     
-    def set_cmyk_color_for_stroking(params)
+    def set_cmyk_color_for_stroking(*params)
       c = params[0]
       m = params[1]
       y = params[2]
@@ -137,7 +137,7 @@ module PrawnVectorImport
       @output << "stroke_color(#{c}, #{m}, #{y}, #{k})"
     end
 
-    def set_cmyk_color_for_nonstroking(params)
+    def set_cmyk_color_for_nonstroking(*params)
       c = params[0]
       m = params[1]
       y = params[2]
