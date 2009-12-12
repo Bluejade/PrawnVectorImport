@@ -141,6 +141,7 @@ module PrawnVectorImport
     end
 
     def set_cmyk_color_for_nonstroking(*params)
+      params = params.map { |x| x * 100 }
       c = params[0]
       m = params[1]
       y = params[2]
