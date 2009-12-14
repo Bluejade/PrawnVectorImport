@@ -5,7 +5,7 @@ module PrawnVectorImport
   class Import
     attr_reader :line_count
     
-    def initialize(file_path, method_name = "my_vector_graphics")
+    def initialize(file_path, method_name)
       @output = []
       @line_count = 0
       @deferred_block = []
@@ -17,10 +17,9 @@ module PrawnVectorImport
       @header = []
       @header << "module Prawn"
       @header << "  module Graphics"
-      @header << "    # Change this method name to something that fits your graphics"
       @header << "    # ox and oy are offset_x and offset_y, respectively. they are used to position your graphics"
       @header << "    # os is the amount to scale the graphics"
-      @header << "    def #@method_name(ox=0, oy=0, os=1)"
+      @header << "    def #{@method_name}(ox=0, oy=0, os=1)"
       @header << "      # Do not modify gsXs and gsYs. They handle translational graphics state saving/restoring"
       @header << "      gsXs = []"
       @header << "      gsYs = []"
@@ -134,6 +133,7 @@ module PrawnVectorImport
     end
     
     def set_cmyk_color_for_stroking(*params)
+      params = params.map { |x| x * 100 }
       c = params[0]
       m = params[1]
       y = params[2]

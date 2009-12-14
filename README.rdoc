@@ -17,15 +17,15 @@ First, generate your Adobe Illustrator / PDF file. If using Illustrator, when yo
 Use PrawnVectorImport from the command line to generate a ruby file:
 
   $ cd PrawnVectorImport/
-  $ ruby bin/import_vectors.rb path_to_ai_or_pdf_file > path_to_file_you_want_to_create
+  $ ruby bin/import_vectors.rb path_to_ai_or_pdf_file method_name > method_name.rb
 
-The resulting ruby file is an extension to the Prawn::Graphics module. It contains a method named my_vector_graphics that takes three optional parameters. Rename that method (and the file) to a name that corresponds to your graphics content, then include the file in your project and call the method on a Prawn document object.
+The resulting ruby file is an extension to the Prawn::Graphics module. It contains a method named <method_name> (the second argument passed to bin/import_vectors.rb) that takes three optional parameters. Include the file in your project and call the method on a Prawn document object.
 
 If you have Prawn installed in the same directory as PrawnVectorImport, then here is an easy way to test the results:
 
   $ cd PrawnVectorImport/
-  $ ruby bin/import_vectors.rb ./examples/vector_import_test.ai > ./examples/my_vector_graphics.rb
-  $ cp examples/my_vector_graphics.rb ../prawn/examples/
+  $ ruby bin/import_vectors.rb ./examples/vector_import_test.ai my_vector_graphics > my_vector_graphics.rb
+  $ cp my_vector_graphics.rb ../prawn/examples/
   $ cp examples/prawn_vector_import.rb ../prawn/examples/
   $ cd ../prawn
   $ ruby examples/prawn_vector_import.rb
@@ -38,8 +38,6 @@ See the ./examples/prawn_vector_import.rb file for an example of how the generat
 
 - Positioning is based on the lower left corner of the Illustrator document and from the lower left corner of the Prawn bounds.
 
-- If you don't see anything, and your document is in CMYK, change the Illustrator document and then all artwork to RGB.
-
 - Delete hidden layers. Artwork that is present, but not visible, may be drawn, creating a larger ruby file and final PDF unnecessarily.
 
 - Again, convert type to outlines prior to importing if you want the text to appear.
@@ -47,3 +45,12 @@ See the ./examples/prawn_vector_import.rb file for an example of how the generat
 = Limitations
 
 It's pretty basic right now. I know it doesn't yet handle transparency. However, at least when an Illustrator document is saved as PDF compatible (I'm using Illustrator CS3), objects may be rotated, and Illustrator even cuts off objects that extend beyond the artboard (see examples/prawn_vector_import.pdf and the original examples/vector_import_test.ai).
+
+Michaël Witrant has reported that with some AI files, rotation does not work (perhaps rotation of grouped elements?). That will hopefully be overcome if we can incorporate the ability to transform user space within Prawn.
+
+= Changelog
+
+2009-12-14
+
+ - CMYK fixed (Michaël Witrant)
+ - Command line now takes name of method to create (Michaël Witrant)
