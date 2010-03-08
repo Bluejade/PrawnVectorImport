@@ -6,7 +6,9 @@ require "#{File.dirname(__FILE__)}/my_vector_graphics"
 
 pdf = Prawn::Document.new
 
-pdf.my_vector_graphics(0, 0, 1)
+pdf.translate(175, 270) do
+  pdf.my_vector_graphics
+end
 
 pdf.render_file("prawn_vector_import.pdf")
 

@@ -9,17 +9,17 @@ module PrawnVectorImport
     
     it 'should be able to import lines' do
       import = PrawnVectorImport::Import.new(path_to('stroke_dash.pdf'), 'my_vector_graphics')
-      import.output.should =~ /^\s*move_to\(os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\)$.^\s*line_to\(os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\)/m
+      import.output.should =~ /^\s*move_to\([0-9.-]+, [0-9.-]+\)$.^\s*line_to\([0-9.-]+, [0-9.-]+\)/m
     end
     
     it 'should be able to import curves' do
       import = PrawnVectorImport::Import.new(path_to('text_oval.pdf'), 'my_vector_graphics')
-      import.output.should =~ /^\s*move_to\(os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\)$.^\s*curve_to\(\[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\], :bounds => \[\[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\], \[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\]\]\)/m
+      import.output.should =~ /^\s*move_to\([0-9.-]+, [0-9.-]+\)$.^\s*curve_to\(\[[0-9.-]+, [0-9.-]+\], :bounds => \[\[[0-9.-]+, [0-9.-]+\], \[[0-9.-]+, [0-9.-]+\]\]\)/m
     end
     
     it 'should be able to draw a rectangle' do
       import = PrawnVectorImport::Import.new(path_to('pretty_polygons.pdf'), 'my_vector_graphics')
-      import.output.should =~ /^\s*rectangle\(\[os \* [0-9.-]+ \+ ox, os \* [0-9.-]+ \+ oy\], os \* [0-9.]+, os \* [0-9.]+\)$/
+      import.output.should =~ /^\s*rectangle\(\[[0-9.-]+, [0-9.-]+\], [0-9.]+, [0-9.]+\)$/
     end
 
     it 'should be able to fill' do

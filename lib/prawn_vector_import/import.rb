@@ -15,42 +15,33 @@ module PrawnVectorImport
     
     def output
       @header = []
-      @header << "module Prawn"
-      @header << "  module Graphics"
-      @header << "    # ox and oy are offset_x and offset_y, respectively. they are used to position your graphics"
-      @header << "    # os is the amount to scale the graphics"
-      @header << "    def #{@method_name}(ox=0, oy=0, os=1)"
-      @header << "      # Do not modify gsXs and gsYs. They handle translational graphics state saving/restoring"
-      @header << "      gsXs = []"
-      @header << "      gsYs = []"
+      @header << 'module Prawn'
+      @header << '  module Graphics'
+      @header << '    # Use Prawn::Graphics::Transformation#translate and'
+      @header << '    # Prawn::Graphics::Transformation#scale to adjust'
+      @header << '    # the position and scale of these graphics within'
+      @header << '    # your document'
+      @header << '    def ' + @method_name
 
 
       @footer = []
-      @footer << "    end"
-      @footer << "  end"
-      @footer << "end"
+      @footer << '    end'
+      @footer << '  end'
+      @footer << 'end'
 
       @header.join("\n") + "\n      " + @output.join("\n      ") + "\n" + @footer.join("\n")
     end
 
     def concatenate_matrix(*params)
-      # only handling translational matrix at this point
-      @output << "ox += #{params[4]} * os"
-      @output << "oy += #{params[5]} * os"
+      @output << "transformation_matrix(#{params[0]}, #{params[1]}, #{params[2]}, #{params[3]}, #{params[4]}, #{params[5]})"
     end
 
     def save_graphics_state
-      # this should really save the entire graphics state, but at this
-      # point, I am only handling simple modifications, and
-      # Illustrator seems use concatenate_matrix and graphics state
-      # saving and restoring around various objects
-      @output << "gsXs << ox"
-      @output << "gsYs << oy"
+      @output << 'save_graphics_state'
     end
 
     def restore_graphics_state
-      @output << "ox = gsXs.pop"
-      @output << "oy = gsYs.pop"
+      @output << 'restore_graphics_state'
     end
 
     def discard_deferred_block
@@ -62,23 +53,23 @@ module PrawnVectorImport
     alias_method :set_clipping_path_with_even_odd, :discard_deferred_block
     
     def stroke
-      @output << "stroke do"
-      @output << "  " + @deferred_block.join("\n        ")
-      @output << "end"
+      @output << 'stroke do'
+      @output << '  ' + @deferred_block.join("\n        ")
+      @output << 'end'
       @deferred_block = []
     end
     
     def fill_stroke
-      @output << "fill_and_stroke do"
-      @output << "  " + @deferred_block.join("\n        ")
-      @output << "end"
+      @output << 'fill_and_stroke do'
+      @output << '  ' + @deferred_block.join("\n        ")
+      @output << 'end'
       @deferred_block = []
     end
     
     def fill
-      @output << "fill do"
-      @output << "  " + @deferred_block.join("\n        ")
-      @output << "end"
+      @output << 'fill do'
+      @output << '  ' + @deferred_block.join("\n        ")
+      @output << 'end'
       @deferred_block = []
     end
 
@@ -97,12 +88,12 @@ module PrawnVectorImport
     
 
     def begin_new_subpath(*point)
-      @deferred_block << "move_to(os * #{point[0]} + ox, os * #{point[1]} + oy)"
+      @deferred_block << "move_to(#{point[0]}, #{point[1]})"
     end
 
     def append_line(*point)
       @line_count += 1
-      @deferred_block << "line_to(os * #{point[0]} + ox, os * #{point[1]} + oy)"
+      @deferred_block << "line_to(#{point[0]}, #{point[1]})"
     end
 
     def append_rectangle(*params)
@@ -110,11 +101,11 @@ module PrawnVectorImport
       y = params[1]
       width = params[2]
       height = params[3]
-      @deferred_block << "rectangle([os * #{x} + ox, os * #{y + height} + oy], os * #{width}, os * #{height})"
+      @deferred_block << "rectangle([#{x}, #{y + height}], #{width}, #{height})"
     end
 
     def append_curved_segment(*params)
-      @deferred_block << "curve_to([os * #{params[4]} + ox, os * #{params[5]} + oy], :bounds => [[os * #{params[0]} + ox, os * #{params[1]} + oy], [os * #{params[2]} + ox, os * #{params[3]} + oy]])"
+      @deferred_block << "curve_to([#{params[4]}, #{params[5]}], :bounds => [[#{params[0]}, #{params[1]}], [#{params[2]}, #{params[3]}]])"
     end
 
 
@@ -157,13 +148,13 @@ module PrawnVectorImport
     def set_line_dash(*params)
       array = params[0]
       if array.length == 0
-        @output << "undash"
-        return
+        @output << 'undash'
+      else
+        length = array[0]
+        space = array[1] || 'nil'
+        phase = params[1] || 'nil'
+        @output << "dash(#{length}, :space => #{space}, :phase => #{phase})"
       end
-      length = array[0]
-      space = array[1] || "nil"
-      phase = params[1] || "nil"
-      @output << "dash(#{length}, :space => #{space}, :phase => #{phase})"
     end
     
     private
